@@ -4,222 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Engineering OS — Mehfooj</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  /* Dark Theme (Default) */
-  --bg: #09090b;
-  --s1: #121214;
-  --s2: #18181b;
-  --s3: #27272a;
-  --border: rgba(255, 255, 255, 0.08);
-  --bh: rgba(255, 255, 255, 0.15);
-  --text: #ededed;
-  --muted: #a1a1aa;
-  --hint: #52525b;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  
-  --purple: #a78bfa; --purpleb: rgba(167,139,250,0.15);
-  --green: #4ade80;  --greenb: rgba(74,222,128,0.15);
-  --blue: #60a5fa;   --blueb: rgba(96,165,250,0.15);
-  --orange: #fb923c; --orangeb: rgba(251,146,60,0.15);
-  --red: #f87171;    --redb: rgba(248,113,113,0.15);
-  --yellow: #facc15; --yellowb: rgba(250,204,21,0.15);
-
-  --mono: 'JetBrains Mono', monospace;
-  --sans: 'Inter', sans-serif;
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-[data-theme="light"] {
-  --bg: #fafafa;
-  --s1: #ffffff;
-  --s2: #f4f4f5;
-  --s3: #e4e4e7;
-  --border: rgba(0, 0, 0, 0.1);
-  --bh: rgba(0, 0, 0, 0.15);
-  --text: #18181b;
-  --muted: #52525b;
-  --hint: #a1a1aa;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-
-  --purple: #7c3aed; --purpleb: rgba(124,58,237,0.1);
-  --green: #16a34a;  --greenb: rgba(22,163,74,0.1);
-  --blue: #2563eb;   --blueb: rgba(37,99,235,0.1);
-  --orange: #ea580c; --orangeb: rgba(234,88,12,0.1);
-  --red: #dc2626;    --redb: rgba(220,38,38,0.1);
-  --yellow: #ca8a04; --yellowb: rgba(202,138,4,0.1);
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
-  font-size: 13px;
-  line-height: 1.5;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* TOP BAR (Glassmorphism) */
-.topbar {
-  display: flex; align-items: center; gap: 16px; 
-  padding: 12px 24px; 
-  border-bottom: 1px solid var(--border); 
-  position: sticky; top: 0; 
-  background: rgba(var(--bg-rgb), 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  z-index: 100;
-}
-[data-theme="dark"] .topbar { background: rgba(9, 9, 11, 0.8); }
-[data-theme="light"] .topbar { background: rgba(250, 250, 250, 0.8); }
-
-.tb-logo { font-family: var(--mono); font-size: 14px; font-weight: 700; letter-spacing: -0.02em; }
-.tb-sync { margin-left: auto; display: flex; gap: 12px; align-items: center; }
-.tb-sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
-.tb-sync-text { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
-}
-
-/* SHELL LAYOUT */
-.shell { display: grid; grid-template-columns: 220px 1fr 280px; min-height: calc(100vh - 53px); }
-@media(max-width: 1024px) { .shell { grid-template-columns: 1fr; } .side-left, .side-right { display: none; } }
-
-/* LEFT SIDEBAR */
-.side-left { border-right: 1px solid var(--border); padding: 24px 0; background: var(--bg); }
-.nav-section { font-family: var(--mono); font-size: 10px; color: var(--hint); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 12px 24px 8px; }
-.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 24px; cursor: pointer; color: var(--muted); border-left: 3px solid transparent; font-size: 13px; font-weight: 500; transition: var(--transition); }
-.nav-item:hover { color: var(--text); background: var(--s2); }
-.nav-item.active { color: var(--text); border-left-color: var(--purple); background: var(--purpleb); }
-.nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-
-/* MAIN CONTENT */
-.main { padding: 32px 40px; overflow-y: auto; background: var(--bg); }
-.side-right { border-left: 1px solid var(--border); padding: 24px; background: var(--bg); }
-
-/* VIEWS */
-.view { display: none; animation: fadeIn 0.3s ease; }
-.view.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-.page-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
-.page-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
-
-/* STATS */
-.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
-.stat { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; box-shadow: var(--shadow); transition: transform 0.2s ease; }
-.stat:hover { transform: translateY(-2px); }
-.stat-label { font-family: var(--mono); font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-.stat-val { font-size: 24px; font-weight: 700; font-family: var(--mono); letter-spacing: -0.02em; }
-
-/* CARDS */
-.card { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); transition: var(--transition); }
-.card:hover { border-color: var(--bh); }
-.card-title { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-.two-col { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; }
-@media(max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
-
-/* CHECK ITEM */
-.check-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer; align-items: flex-start; transition: var(--transition); }
-.check-item:last-child { border-bottom: none; }
-.check-item:hover { background: var(--s2); border-radius: 6px; padding-left: 8px; margin-left: -8px; }
-.checkbox { width: 18px; height: 18px; border: 2px solid var(--hint); border-radius: 5px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
-.checkbox.done { background: var(--green); border-color: var(--green); }
-.checkbox.done::after { content: ''; width: 5px; height: 9px; border-right: 2px solid var(--bg); border-bottom: 2px solid var(--bg); transform: rotate(45deg) translate(-1px, -1px); }
-.check-text { font-size: 13px; color: var(--text); flex: 1; transition: var(--transition); }
-.check-text.done { text-decoration: line-through; color: var(--muted); }
-
-/* BUTTONS */
-.btn { font-family: var(--sans); font-weight: 500; font-size: 12px; padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; color: var(--text); background: var(--s2); transition: var(--transition); outline: none; }
-.btn:hover { background: var(--s3); border-color: var(--muted); }
-.btn:active { transform: scale(0.97); }
-.btn-primary { background: var(--purple); border-color: var(--purple); color: #fff; font-weight: 600; }
-.btn-primary:hover { background: #8b5cf6; border-color: #8b5cf6; }
-[data-theme="light"] .btn-primary { color: #fff; }
-.btn-sm { padding: 4px 10px; font-size: 11px; }
-
-/* THEME TOGGLE */
-.theme-toggle { background: transparent; border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); transition: var(--transition); }
-.theme-toggle:hover { color: var(--text); background: var(--s2); }
-
-/* TARGET ROW */
-.target-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--s2); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border); transition: var(--transition); }
-.target-row:hover { border-color: var(--bh); transform: translateX(2px); }
-.target-row.done { opacity: 0.6; background: transparent; border-style: dashed; }
-.target-txt { flex: 1; font-size: 13px; font-weight: 500; }
-.target-txt.done { text-decoration: line-through; color: var(--muted); font-weight: 400; }
-.badge { font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-.b-purple { background: var(--purpleb); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
-.b-green { background: var(--greenb); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
-.b-blue { background: var(--blueb); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
-.b-orange { background: var(--orangeb); color: var(--orange); border: 1px solid rgba(251,146,60,0.2); }
-.b-red { background: var(--redb); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
-.b-yellow { background: var(--yellowb); color: var(--yellow); border: 1px solid rgba(250,204,21,0.2); }
-
-/* FORMS */
-input[type=text], select, textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--sans); font-size: 13px; padding: 10px 14px; width: 100%; outline: none; transition: var(--transition); }
-input[type=text]:focus, select:focus, textarea:focus { border-color: var(--purple); box-shadow: 0 0 0 2px var(--purpleb); }
-textarea { resize: vertical; min-height: 80px; font-family: var(--mono); font-size: 12px; }
-
-/* RIGHT PANEL - LLM CONTEXT */
-.ctx-title { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
-.provider-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.pchip { font-family: var(--sans); font-weight: 500; font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; background: var(--s1); transition: var(--transition); }
-.pchip:hover { border-color: var(--bh); color: var(--text); }
-.pchip.active { border-color: var(--purple); color: var(--purple); background: var(--purpleb); font-weight: 600; }
-.ctx-box { background: var(--s1); border-radius: 8px; padding: 12px; font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.6; max-height: 320px; overflow-y: auto; border: 1px solid var(--border); white-space: pre-wrap; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
-.copy-btn { width: 100%; margin-top: 12px; }
-
-/* STREAK */
-.streak-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.streak-day { aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--muted); cursor: pointer; border: 1px solid var(--border); background: var(--s1); transition: var(--transition); }
-.streak-day:hover { border-color: var(--hint); transform: scale(1.05); }
-.streak-day.committed { background: var(--greenb); border-color: var(--green); color: var(--green); font-weight: 700; box-shadow: 0 2px 8px rgba(74,222,128,0.2); }
-.streak-day.today { border-color: var(--purple); border-width: 2px; }
-
-/* PROJECT CARD */
-.proj-card { background: var(--s1); border-radius: 10px; padding: 16px; margin-bottom: 12px; border-left: 4px solid; box-shadow: var(--shadow); transition: var(--transition); }
-.proj-card:hover { transform: translateX(4px); }
-.proj-name { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-.proj-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
-.proj-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.pchip2 { font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 4px; background: var(--s2); border: 1px solid var(--border); color: var(--muted); }
-
-/* MODAL */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.2s ease; }
-.modal-overlay.open { display: flex; }
-.modal { background: var(--s1); border: 1px solid var(--bh); border-radius: 16px; padding: 28px; width: 480px; max-width: 90vw; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.modal-overlay.open .modal { transform: translateY(0); }
-.modal-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; letter-spacing: -0.01em; }
-.form-label { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 16px 0 6px; display: block; }
-.modal-footer { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
-
-/* EXPORT PANEL */
-.export-row { display: flex; gap: 12px; margin-bottom: 12px; }
-.export-row .btn { flex: 1; text-align: center; padding: 10px; }
-#import-status { font-weight: 500; margin-top: 8px; padding: 8px; border-radius: 6px; }
-</style>
+<meta name="description" content="Personal engineering dashboard for tracking projects, targets, resources, and LLM context.">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<div id="toast" class="toast"></div>
+
 <div class="topbar">
   <span class="tb-logo">mehfooj / engineering-os</span>
-  <span style="font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:500;" id="topbar-date"></span>
+  <span style="font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:500" id="topbar-date"></span>
   <div class="tb-sync">
     <span class="tb-sync-dot"></span>
     <span class="tb-sync-text" id="sync-status">local storage · synced</span>
-    <button class="btn btn-sm" onclick="show('export')">Export/Import</button>
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
-      <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-      </svg>
+    <button class="btn btn-sm" onclick="show('export')">Sync</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme" id="theme-btn">
+      <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     </button>
   </div>
 </div>
@@ -230,13 +30,16 @@ textarea { resize: vertical; min-height: 80px; font-family: var(--mono); font-si
   <div class="nav-section">Core</div>
   <div class="nav-item active" onclick="show('today')"><span class="nav-dot" style="background:var(--purple)"></span>Today</div>
   <div class="nav-item" onclick="show('week')"><span class="nav-dot" style="background:var(--green)"></span>Week</div>
+  <div class="nav-item" onclick="show('journal')"><span class="nav-dot" style="background:var(--cyan)"></span>Journal</div>
   <div class="nav-item" onclick="show('streak')"><span class="nav-dot" style="background:var(--orange)"></span>Streak</div>
   <div class="nav-section">Tracks</div>
   <div class="nav-item" onclick="show('projects')"><span class="nav-dot" style="background:var(--blue)"></span>Projects</div>
+  <div class="nav-item" onclick="show('resources')"><span class="nav-dot" style="background:var(--cyan)"></span>Resources</div>
   <div class="nav-item" onclick="show('certs')"><span class="nav-dot" style="background:var(--yellow)"></span>Certs</div>
+  <div class="nav-item" onclick="show('landscape')"><span class="nav-dot" style="background:var(--red)"></span>Landscape</div>
   <div class="nav-section">System</div>
-  <div class="nav-item" onclick="show('linear')"><span class="nav-dot" style="background:var(--purple)"></span>Linear setup</div>
-  <div class="nav-item" onclick="show('export')"><span class="nav-dot" style="background:var(--muted)"></span>Export / Import</div>
+  <div class="nav-item" onclick="show('linear')"><span class="nav-dot" style="background:var(--purple)"></span>Linear Setup</div>
+  <div class="nav-item" onclick="show('export')"><span class="nav-dot" style="background:var(--muted)"></span>Data Sync</div>
 </aside>
 
 <main class="main">
@@ -245,19 +48,17 @@ textarea { resize: vertical; min-height: 80px; font-family: var(--mono); font-si
 <div class="view active" id="view-today">
   <div class="page-title">Today</div>
   <div class="page-sub" id="today-date-full"></div>
-
   <div class="stat-row">
     <div class="stat"><div class="stat-label">Streak</div><div class="stat-val" id="s-streak">0</div></div>
     <div class="stat"><div class="stat-label">Week %</div><div class="stat-val" id="s-week">0%</div></div>
     <div class="stat"><div class="stat-label">Month</div><div class="stat-val" id="s-month">1</div></div>
     <div class="stat"><div class="stat-label">Certs</div><div class="stat-val" id="s-certs">0/8</div></div>
   </div>
-
   <div class="two-col">
     <div class="card">
-      <div class="card-title"><span>🎯 3 Targets</span> <button class="btn btn-sm btn-primary" onclick="openModal()">+ Add</button></div>
+      <div class="card-title"><span>🎯 Targets</span><button class="btn btn-sm btn-primary" onclick="openModal('target')">+ Add</button></div>
       <div id="targets-list"></div>
-      <div id="no-targets" style="color:var(--muted);font-size:12px;padding:12px 0;text-align:center;font-style:italic;">No targets set for today. Plan your work.</div>
+      <div id="no-targets" style="color:var(--muted);font-size:12px;padding:12px 0;text-align:center;font-style:italic">No targets set. Plan your work.</div>
     </div>
     <div class="card">
       <div class="card-title">🛡️ Non-negotiables</div>
@@ -268,95 +69,180 @@ textarea { resize: vertical; min-height: 80px; font-family: var(--mono); font-si
 
 <!-- WEEK -->
 <div class="view" id="view-week">
-  <div class="page-title">This week</div>
-  <div class="page-sub">All targets, grouped by day</div>
+  <div class="page-title">This Week</div>
+  <div class="page-sub">All targets grouped by day</div>
   <div class="card" id="week-list"></div>
+</div>
+
+<!-- JOURNAL -->
+<div class="view" id="view-journal">
+  <div class="page-title">Journal</div>
+  <div class="page-sub">Daily engineering log — reflections, decisions, blockers</div>
+  <div class="journal-date-nav">
+    <button class="btn" onclick="shiftJournalDate(-1)">←</button>
+    <span id="journal-date" style="font-family:var(--mono);font-size:13px;font-weight:600"></span>
+    <button class="btn" onclick="shiftJournalDate(1)">→</button>
+    <button class="btn btn-sm" onclick="goJournalToday()">Today</button>
+  </div>
+  <div class="card" style="padding:0">
+    <div id="journal-editor" class="journal-editor" contenteditable="true" data-placeholder="Write your thoughts for today..."></div>
+  </div>
 </div>
 
 <!-- STREAK -->
 <div class="view" id="view-streak">
-  <div class="page-title">Commit streak</div>
+  <div class="page-title">Commit Streak</div>
   <div class="page-sub">Click a day to mark committed</div>
   <div class="card">
-    <div class="streak-grid" id="streak-grid" style="grid-template-columns: repeat(14, 1fr);"></div>
+    <div class="streak-grid" id="streak-grid" style="grid-template-columns:repeat(14,1fr)"></div>
   </div>
 </div>
 
 <!-- PROJECTS -->
 <div class="view" id="view-projects">
-  <div class="page-title">Project spine</div>
-  <div class="page-sub">One growing system, one project per month</div>
+  <div class="page-title">Projects</div>
+  <div class="page-sub">Full CRUD project management with GitHub repo linking and commit tracking</div>
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="openModal('project')">+ New Project</button>
+    <select id="proj-track-filter" style="width:auto;padding:6px 10px;font-size:12px" onchange="renderProjects()">
+      <option value="all">All Tracks</option>
+      <option value="ai">AI Engineering</option>
+      <option value="fullstack">Full Stack</option>
+      <option value="backend">Backend</option>
+      <option value="dsa">DSA / Problem Solving</option>
+      <option value="oss">Open Source</option>
+      <option value="devops">DevOps</option>
+    </select>
+    <select id="proj-status-filter" style="width:auto;padding:6px 10px;font-size:12px" onchange="renderProjects()">
+      <option value="all">All Status</option>
+      <option value="planning">Planning</option>
+      <option value="building">Building</option>
+      <option value="review">Review</option>
+      <option value="shipped">Shipped</option>
+    </select>
+  </div>
   <div id="projects-list"></div>
+</div>
+
+<!-- RESOURCES -->
+<div class="view" id="view-resources">
+  <div class="page-title">Resources</div>
+  <div class="page-sub">Blogs, playlists, courses, repos — drag to reorder</div>
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="openModal('resource')">+ Add Resource</button>
+    <select id="res-type-filter" style="width:auto;padding:6px 10px;font-size:12px" onchange="renderResources()">
+      <option value="all">All Types</option>
+      <option value="youtube">YouTube</option>
+      <option value="blog">Blog</option>
+      <option value="course">Course</option>
+      <option value="github">GitHub Repo</option>
+      <option value="cert">Certification</option>
+      <option value="doc">Documentation</option>
+    </select>
+  </div>
+  <div id="resources-list"></div>
 </div>
 
 <!-- CERTS -->
 <div class="view" id="view-certs">
   <div class="page-title">Certifications</div>
   <div class="page-sub">Earned after the project works, never before</div>
-  <div id="certs-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;"></div>
+  <div id="certs-list" style="display:grid;grid-template-columns:1fr 1fr;gap:16px"></div>
+</div>
+
+<!-- LANDSCAPE -->
+<div class="view" id="view-landscape">
+  <div class="page-title">Engineering Landscape</div>
+  <div class="page-sub">Cross-section of backend, AI engineering, and systems — depth over breadth</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px" id="id-chips">
+    <span class="badge b-purple">Python AI / RAG Engineer</span>
+    <span class="badge b-blue">Backend / API Engineer</span>
+    <span class="badge b-green">AI Agent Systems</span>
+    <span class="badge b-orange">TypeScript / Node Fullstack</span>
+    <span class="badge b-yellow">Go Systems Engineer</span>
+    <span class="badge b-cyan">Context Engineer</span>
+  </div>
+  <div class="track-grid" id="landscape-tracks"></div>
+  <div class="card" style="margin-top:20px">
+    <div class="card-title">🧠 Engineer Identity — What Unlocks When</div>
+    <div class="im-grid" id="identity-map"></div>
+  </div>
+  <div class="friction-box" style="margin-top:20px">
+    <div class="friction-title">// cognitive friction bridge protocol</div>
+    <div class="friction-grid">
+      <div class="friction-side">
+        <div class="friction-side-title">The gap</div>
+        <div class="friction-step"><span class="fnum">→</span>Reading code = recognition memory = low friction = no growth</div>
+        <div class="friction-step"><span class="fnum">→</span>Writing logic from scratch = retrieval + decomposition = actual skill</div>
+        <div class="friction-step"><span class="fnum">→</span>AI/tutorials bypass the mental muscle for execution</div>
+      </div>
+      <div class="friction-side">
+        <div class="friction-side-title">The bridge — every time</div>
+        <div class="friction-step"><span class="fnum">1.</span>Read the goal in plain English</div>
+        <div class="friction-step"><span class="fnum">2.</span>Close resources. Write what needs to happen.</div>
+        <div class="friction-step"><span class="fnum">3.</span>Write pseudocode — no syntax, just logic</div>
+        <div class="friction-step"><span class="fnum">4.</span>Code from pseudocode, not tutorial</div>
+        <div class="friction-step"><span class="fnum">5.</span>Compare with existing implementations</div>
+        <div class="friction-step"><span class="fnum">6.</span>Use AI to review — not to generate</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- LINEAR SETUP -->
 <div class="view" id="view-linear">
-  <div class="page-title">Linear integration</div>
+  <div class="page-title">Linear Integration</div>
   <div class="page-sub">How this dashboard connects to your Linear workspace</div>
   <div class="card">
-    <div class="card-title">Setup steps</div>
+    <div class="card-title">Setup Steps</div>
     <div style="font-size:13px;color:var(--muted);line-height:1.8">
       1. Create free Linear workspace at linear.app<br>
       2. One team "Engineering", 6 projects — one per roadmap month<br>
-      3. Settings → Integrations → GitHub → Connect (auto-closes issues from commits)<br>
+      3. Settings → Integrations → GitHub → Connect<br>
       4. Get API key: Settings → API → Create key<br>
-      5. Run <code style="color:var(--purple);background:var(--purpleb);padding:2px 6px;border-radius:4px;font-family:var(--mono);font-size:11px;">python sync.py</code> locally to push/pull between this dashboard's export and Linear<br><br>
-      Full guide: <code style="color:var(--text);background:var(--s2);padding:2px 6px;border-radius:4px;font-family:var(--mono);font-size:11px;">docs/linear_setup_guide.md</code> in your repo
+      5. Run <code style="color:var(--purple);background:var(--purpleb);padding:2px 6px;border-radius:4px;font-family:var(--mono);font-size:11px">python sync.py</code> locally
     </div>
   </div>
   <div class="card">
-    <div class="card-title">Commit convention</div>
-    <div style="font-family:var(--mono);font-size:12px;color:var(--text);background:var(--bg);padding:12px;border-radius:8px;border:1px solid var(--border);">git commit -m "Fixes ENG-12: ingest.py loads PDFs and prints chunk count"</div>
+    <div class="card-title">Commit Convention</div>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--text);background:var(--bg);padding:12px;border-radius:8px;border:1px solid var(--border)">git commit -m "Fixes ENG-12: ingest.py loads PDFs and prints chunk count"</div>
   </div>
 </div>
 
 <!-- EXPORT -->
 <div class="view" id="view-export">
-  <div class="page-title">Data Management</div>
-  <div class="page-sub">Export/Import JSON state — robust single-source-of-truth syncing</div>
-  
+  <div class="page-title">Data Sync</div>
+  <div class="page-sub">Export/Import JSON state — localStorage is your database</div>
   <div class="two-col">
     <div class="card">
-      <div class="card-title">📤 Export State</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Download the current system state to sync across devices or backup.</div>
-      <div class="export-row">
-        <button class="btn btn-primary" onclick="exportState()">Download state.json</button>
-      </div>
-      <div class="export-row">
-        <button class="btn" onclick="copyStateToClipboard()">Copy to Clipboard</button>
-      </div>
+      <div class="card-title">📤 Export</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Download your entire system state.</p>
+      <div class="export-row"><button class="btn btn-primary" onclick="exportState()">Download state.json</button></div>
+      <div class="export-row"><button class="btn" onclick="copyStateToClipboard()">Copy to Clipboard</button></div>
     </div>
-    
     <div class="card">
-      <div class="card-title">📥 Import State</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Paste valid JSON or upload a state file.</div>
-      <textarea id="import-input" placeholder='{"targets":[], "theme":"dark" ... }'></textarea>
+      <div class="card-title">📥 Import</div>
+      <textarea id="import-input" placeholder='Paste JSON here or use file picker'></textarea>
       <div class="export-row" style="margin-top:12px">
-        <input type="file" id="import-file" accept=".json" style="font-size:12px; padding:6px; background:var(--bg);" onchange="importFromFile(event)">
-        <button class="btn btn-primary" onclick="importFromText()">Import Data</button>
+        <input type="file" id="import-file" accept=".json" style="font-size:12px;padding:6px;background:var(--bg)" onchange="importFromFile(event)">
+        <button class="btn btn-primary" onclick="importFromText()">Import</button>
       </div>
       <div id="import-status" style="display:none"></div>
     </div>
   </div>
-  
   <div class="card">
-    <div class="card-title">Recommended Flow</div>
-    <div style="font-size:13px;color:var(--muted);line-height:1.7">
-      Commit <code style="color:var(--text);background:var(--s2);padding:2px 6px;border-radius:4px;font-family:var(--mono);font-size:11px;">state.json</code> to your GitHub repo alongside the dashboard. On a new device, clone the repo, open the dashboard, and import state.json. This keeps your GitHub repo as the true single source across every machine.
+    <div class="card-title">How Data Persistence Works</div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.8">
+      <strong style="color:var(--text)">No backend needed.</strong> All data lives in your browser's <code style="color:var(--purple);font-family:var(--mono);font-size:11px">localStorage</code> under key <code style="font-family:var(--mono);font-size:11px">mehfooj_eng_os_v2</code>. Every action (adding a target, toggling a checkbox, writing a journal entry) calls <code style="font-family:var(--mono);font-size:11px">save()</code> which serializes the entire state to JSON and writes it to localStorage.<br><br>
+      <strong style="color:var(--text)">Cross-device sync:</strong> Export <code style="font-family:var(--mono);font-size:11px">state.json</code> → commit to GitHub → clone on new device → import. Your GitHub repo is the single source of truth across machines.<br><br>
+      <strong style="color:var(--text)">Daily updates:</strong> Dates are computed from <code style="font-family:var(--mono);font-size:11px">new Date()</code> on each page load. Journal entries, daily checks, and streak data are all keyed by ISO date string (YYYY-MM-DD).
     </div>
   </div>
 </div>
 
 </main>
 
-<!-- RIGHT PANEL - LLM CONTEXT -->
+<!-- RIGHT PANEL -->
 <aside class="side-right">
   <div class="ctx-title">🧠 Context Engine</div>
   <div class="provider-chips" id="provider-chips">
@@ -365,10 +251,9 @@ textarea { resize: vertical; min-height: 80px; font-family: var(--mono); font-si
     <span class="pchip" data-provider="openrouter" onclick="selectProvider(this,'openrouter')">OpenRouter</span>
     <span class="pchip" data-provider="antigravity" onclick="selectProvider(this,'antigravity')">Antigravity</span>
   </div>
-  <div class="ctx-title">📄 context.md preview</div>
+  <div class="ctx-title">📄 context.md</div>
   <div class="ctx-box" id="context-preview"></div>
   <button class="btn copy-btn" onclick="copyContext()">Copy Markdown</button>
-
   <div style="margin-top:32px">
     <div class="ctx-title">🔥 14-Day Streak</div>
     <div class="streak-grid" id="mini-streak" style="grid-template-columns:repeat(7,1fr)"></div>
@@ -377,356 +262,68 @@ textarea { resize: vertical; min-height: 80px; font-family: var(--mono); font-si
 
 </div>
 
-<!-- ADD TARGET MODAL -->
-<div class="modal-overlay" id="target-modal">
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-target">
   <div class="modal">
     <div class="modal-title">Create Target</div>
-    <label class="form-label">Description (Actionable & Runnable)</label>
+    <label class="form-label">Description (actionable & runnable)</label>
     <input type="text" id="t-input" placeholder="e.g., ingest.py loads 3 PDFs and prints chunk count">
-    
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-      <div>
-        <label class="form-label">Day</label>
-        <select id="t-day">
-          <option>Mon</option><option>Tue</option><option>Wed</option><option>Thu</option><option>Fri</option><option>Sat</option><option>Sun</option>
-        </select>
-      </div>
-      <div>
-        <label class="form-label">Track</label>
-        <select id="t-track">
-          <option value="AI">AI Engineering</option>
-          <option value="Backend">Backend/Node</option>
-          <option value="Go">Go</option>
-          <option value="DevOps">DevOps</option>
-        </select>
-      </div>
+    <div class="form-row">
+      <div><label class="form-label">Day</label><select id="t-day"><option>Mon</option><option>Tue</option><option>Wed</option><option>Thu</option><option>Fri</option><option>Sat</option><option>Sun</option></select></div>
+      <div><label class="form-label">Track</label><select id="t-track"><option value="AI">AI Engineering</option><option value="Backend">Backend</option><option value="Fullstack">Fullstack</option><option value="Go">Go</option><option value="DevOps">DevOps</option><option value="DSA">DSA</option></select></div>
     </div>
-    
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="addTarget()">Save Target</button>
-    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModals()">Cancel</button><button class="btn btn-primary" onclick="addTarget()">Save</button></div>
   </div>
 </div>
 
-<script>
-const KEY = 'mehfooj_eng_os_v1';
-const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const TODAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date().getDay()];
+<div class="modal-overlay" id="modal-project">
+  <div class="modal">
+    <div class="modal-title" id="proj-modal-title">New Project</div>
+    <input type="hidden" id="p-edit-id">
+    <label class="form-label">Project Name</label>
+    <input type="text" id="p-name" placeholder="multi-doc-rag">
+    <label class="form-label">Description</label>
+    <textarea id="p-desc" style="min-height:60px" placeholder="What does it do? What's the outcome?"></textarea>
+    <div class="form-row">
+      <div><label class="form-label">Track</label><select id="p-track"><option value="ai">AI Engineering</option><option value="fullstack">Full Stack</option><option value="backend">Backend</option><option value="dsa">DSA / Problem Solving</option><option value="oss">Open Source</option><option value="devops">DevOps</option></select></div>
+      <div><label class="form-label">Status</label><select id="p-status"><option value="planning">Planning</option><option value="building">Building</option><option value="review">Review</option><option value="shipped">Shipped</option></select></div>
+    </div>
+    <div class="form-row">
+      <div><label class="form-label">Month</label><input type="number" id="p-month" min="1" max="12" value="1"></div>
+      <div><label class="form-label">Progress %</label><input type="number" id="p-progress" min="0" max="100" value="0"></div>
+    </div>
+    <label class="form-label">Tech Stack (comma-separated)</label>
+    <input type="text" id="p-stack" placeholder="Python, LangChain, FAISS, Docker">
+    <label class="form-label">GitHub Repo URL (optional)</label>
+    <input type="url" id="p-repo" placeholder="https://github.com/username/repo">
+    <div class="modal-footer"><button class="btn" onclick="closeModals()">Cancel</button><button class="btn btn-danger" id="p-delete-btn" style="display:none" onclick="deleteProject()">Delete</button><button class="btn btn-primary" onclick="saveProject()">Save</button></div>
+  </div>
+</div>
 
-function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):def();}catch(e){return def();}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));updateSyncStatus();}catch(e){}}
-function def(){return {targets:[],dailyChecks:{},streak:{},certs:{},currentMonth:1,provider:'ollama',theme:'dark'};}
-let state = load();
+<div class="modal-overlay" id="modal-resource">
+  <div class="modal">
+    <div class="modal-title">Add Resource</div>
+    <input type="hidden" id="r-edit-id">
+    <label class="form-label">Title</label>
+    <input type="text" id="r-title" placeholder="LangChain + Vector DBs">
+    <label class="form-label">URL</label>
+    <input type="url" id="r-url" placeholder="https://...">
+    <div class="form-row">
+      <div><label class="form-label">Type</label><select id="r-type"><option value="youtube">YouTube</option><option value="blog">Blog</option><option value="course">Course</option><option value="github">GitHub Repo</option><option value="cert">Certification</option><option value="doc">Documentation</option></select></div>
+      <div><label class="form-label">Track</label><select id="r-track"><option value="ai">AI Engineering</option><option value="fullstack">Full Stack</option><option value="backend">Backend</option><option value="dsa">DSA</option><option value="oss">Open Source</option><option value="devops">DevOps</option><option value="general">General</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModals()">Cancel</button><button class="btn btn-primary" onclick="saveResource()">Save</button></div>
+  </div>
+</div>
 
-// Fix missing properties in older state versions
-if(!state.theme) state.theme = 'dark';
-applyTheme();
+<div class="modal-overlay" id="modal-commits">
+  <div class="modal" style="width:640px">
+    <div class="modal-title" id="commits-modal-title">Commits</div>
+    <div id="commits-list" style="max-height:400px;overflow-y:auto"></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModals()">Close</button></div>
+  </div>
+</div>
 
-const DAILY_CHECKS=[
-  {id:'commit',text:'GitHub commit pushed today'},
-  {id:'targets',text:'3 targets explicitly written'},
-  {id:'output',text:'Visible output produced, not just code'},
-  {id:'nolecture',text:'No lecture watched without coding alongside'},
-];
-
-const PROJECTS=[
-  {m:1,name:'multi-doc-rag',color:'var(--purple)',desc:'Multi-doc RAG, hybrid search, reranking, FastAPI, deployed on EC2.',stack:['Python','LangChain','FAISS','Groq','Docker']},
-  {m:2,name:'legal-intelligence-agent',color:'var(--blue)',desc:'LangGraph agent, 3 tools, LangSmith tracing, Redis cache.',stack:['LangGraph','LangSmith','Redis']},
-  {m:3,name:'autocommit (PyPI)',color:'var(--green)',desc:'Git hook CLI, any LLM via config, published to PyPI.',stack:['Typer','Ollama','PyPI']},
-  {m:4,name:'backend-from-scratch',color:'var(--orange)',desc:'Same API in TypeScript then Go stdlib. Compare both.',stack:['TypeScript','Go','PostgreSQL']},
-  {m:5,name:'context-engine',color:'var(--yellow)',desc:'tree-sitter symbol graph, context injection. The Cursor primitive.',stack:['tree-sitter','LSP']},
-  {m:6,name:'production-ai-system',color:'var(--red)',desc:'Full MLOps: Kubernetes, Kafka, Prometheus, eval-gated CI.',stack:['K8s','Kafka','MLflow']},
-];
-
-const CERTS=[
-  {id:'c1',name:'LangChain + Vector DBs',plat:'Activeloop',m:1},
-  {id:'c2',name:'RAG for Production',plat:'Activeloop',m:1},
-  {id:'c3',name:'HF LLM Course',plat:'HuggingFace',m:1},
-  {id:'c4',name:'HF Agents Course',plat:'HuggingFace',m:2},
-  {id:'c5',name:'LangSmith Essentials',plat:'LangChain Academy',m:2},
-  {id:'c6',name:'Monitoring Production Agents',plat:'LangChain Academy',m:3},
-  {id:'c7',name:'HF Context Course',plat:'HuggingFace',m:5},
-  {id:'c8',name:'HF smol course',plat:'HuggingFace',m:4},
-];
-
-function trackColor(t){return {AI:'purple',Backend:'blue',Go:'green',DevOps:'orange'}[t]||'blue';}
-function calcStreak(){let s=0;const t=new Date();for(let i=0;i<365;i++){const d=new Date(t);d.setDate(t.getDate()-i);const k=d.toISOString().slice(0,10);if(state.streak[k])s++;else if(i>0)break;}return s;}
-
-function applyTheme() {
-  document.documentElement.setAttribute('data-theme', state.theme);
-  const icon = document.getElementById('theme-icon');
-  if (state.theme === 'light') {
-    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'; // Moon icon
-  } else {
-    icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>'; // Sun icon
-  }
-}
-
-function toggleTheme() {
-  state.theme = state.theme === 'dark' ? 'light' : 'dark';
-  applyTheme();
-  save();
-}
-
-function renderToday(){
-  const d=new Date();
-  document.getElementById('topbar-date').textContent=d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-  document.getElementById('today-date-full').textContent=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-
-  const todays=state.targets.filter(t=>t.day===TODAY);
-  const list=document.getElementById('targets-list');
-  document.getElementById('no-targets').style.display=todays.length?'none':'block';
-  list.innerHTML='';
-  todays.forEach((t,i)=>{
-    const el=document.createElement('div');
-    el.className='target-row'+(t.done?' done':'');
-    el.innerHTML=`<span style="font-family:var(--mono);font-size:11px;color:var(--hint);font-weight:600;">0${i+1}</span>
-      <span class="target-txt ${t.done?'done':''}">${t.text}</span>
-      <span class="badge b-${trackColor(t.track)}">${t.track}</span>
-      <button class="btn btn-sm" onclick="toggleTarget('${t.id}')">${t.done?'Undo':'Complete'}</button>
-      <button class="btn btn-sm" style="padding:4px 6px;" onclick="delTarget('${t.id}')">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </button>`;
-    list.appendChild(el);
-  });
-
-  const wd=state.targets.filter(t=>t.done).length, wt=state.targets.length;
-  document.getElementById('s-week').textContent=(wt?Math.round(wd/wt*100):0)+'%';
-  document.getElementById('s-streak').textContent=calcStreak();
-  document.getElementById('s-month').textContent=state.currentMonth;
-  document.getElementById('s-certs').textContent=Object.values(state.certs).filter(v=>v).length+'/8';
-
-  const tk=d.toISOString().slice(0,10);
-  if(!state.dailyChecks[tk])state.dailyChecks[tk]={};
-  const dc=document.getElementById('daily-checks');
-  dc.innerHTML='';
-  DAILY_CHECKS.forEach(c=>{
-    const done=!!state.dailyChecks[tk][c.id];
-    const el=document.createElement('div');
-    el.className='check-item';
-    el.onclick=()=>{state.dailyChecks[tk][c.id]=!done;save();renderToday();};
-    el.innerHTML=`<div class="checkbox ${done?'done':''}"></div><span class="check-text ${done?'done':''}">${c.text}</span>`;
-    dc.appendChild(el);
-  });
-
-  renderContext();
-}
-
-function renderWeek(){
-  const el=document.getElementById('week-list');
-  el.innerHTML='';
-  DAYS.forEach(day=>{
-    const items=state.targets.filter(t=>t.day===day);
-    if(!items.length && day!==TODAY)return;
-    const sec=document.createElement('div');
-    sec.style.marginBottom='16px';
-    sec.innerHTML=`<div style="font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">${day}${day===TODAY?' — TODAY':''}</div>`;
-    items.forEach((t,i)=>{
-      const row=document.createElement('div');
-      row.className='target-row'+(t.done?' done':'');
-      row.innerHTML=`<span style="font-family:var(--mono);font-size:11px;color:var(--hint)">0${i+1}</span><span class="target-txt ${t.done?'done':''}">${t.text}</span><span class="badge b-${trackColor(t.track)}">${t.track}</span>`;
-      sec.appendChild(row);
-    });
-    if(!items.length)sec.innerHTML+=`<div style="color:var(--hint);font-size:12px;font-style:italic;">No targets planned</div>`;
-    el.appendChild(sec);
-  });
-}
-
-function renderStreak(){
-  // Main view streak (28 days / 4 weeks)
-  const grid = document.getElementById('streak-grid');
-  if(grid) {
-    grid.innerHTML='';
-    const t=new Date();
-    for(let i=27;i>=0;i--){
-      const d=new Date(t);d.setDate(t.getDate()-i);
-      const k=d.toISOString().slice(0,10);
-      const committed=!!state.streak[k];
-      const div=document.createElement('div');
-      div.className='streak-day'+(committed?' committed':'')+(i===0?' today':'');
-      div.textContent=d.getDate();
-      div.onclick=()=>{state.streak[k]=!committed;save();renderStreak();renderToday();};
-      grid.appendChild(div);
-    }
-  }
-
-  // Mini streak right sidebar (14 days)
-  const miniGrid = document.getElementById('mini-streak');
-  if(miniGrid) {
-    miniGrid.innerHTML='';
-    const t2=new Date();
-    for(let i=13;i>=0;i--){
-      const d=new Date(t2);d.setDate(t2.getDate()-i);
-      const k=d.toISOString().slice(0,10);
-      const committed=!!state.streak[k];
-      const div=document.createElement('div');
-      div.className='streak-day'+(committed?' committed':'')+(i===0?' today':'');
-      div.textContent=d.getDate();
-      div.onclick=()=>{state.streak[k]=!committed;save();renderStreak();renderToday();};
-      miniGrid.appendChild(div);
-    }
-  }
-}
-
-function renderProjects(){
-  const el=document.getElementById('projects-list');
-  el.innerHTML='';
-  PROJECTS.forEach(p=>{
-    const active=p.m===state.currentMonth, done=p.m<state.currentMonth;
-    const c=document.createElement('div');
-    c.className='proj-card';
-    c.style.borderColor=p.color;
-    c.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:8px">
-      <span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--muted)">Month 0${p.m}</span>
-      <span class="badge ${active?'b-purple':done?'b-green':'b-blue'}">${active?'Active Phase':done?'Shipped':'Upcoming'}</span></div>
-      <div class="proj-name" style="color:${p.color}">${p.name}</div>
-      <div class="proj-desc">${p.desc}</div>
-      <div class="proj-chips">${p.stack.map(s=>`<span class="pchip2">${s}</span>`).join('')}</div>`;
-    el.appendChild(c);
-  });
-}
-
-function renderCerts(){
-  const el=document.getElementById('certs-list');
-  el.innerHTML='';
-  CERTS.forEach(c=>{
-    const done=!!state.certs[c.id];
-    const card=document.createElement('div');
-    card.className='card';
-    card.style.marginBottom = '0';
-    card.innerHTML=`
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-        <div>
-          <div style="font-size:13px;font-weight:600;margin-bottom:4px;color:${done?'var(--green)':'var(--text)'}">${done?'✓ ':''}${c.name}</div>
-          <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${c.plat} · M0${c.m}</div>
-        </div>
-      </div>
-      <button class="btn btn-sm ${done?'':'btn-primary'}" style="width:100%;" onclick="toggleCert('${c.id}')">${done?'Revoke Status':'Mark as Earned'}</button>`;
-    el.appendChild(card);
-  });
-}
-
-function renderContext(){
-  const todays=state.targets.filter(t=>t.day===TODAY);
-  const doneCount=todays.filter(t=>t.done).length;
-  const ctx=`# Context — ${new Date().toISOString().slice(0,10)}
-Month ${state.currentMonth} of 6.
-System: Engineering OS
-Provider Engine: ${state.provider}
-
-## Today's Objective (${doneCount}/${todays.length} completed)
-${todays.map(t=>`- [${t.done?'x':' '}] ${t.text}`).join('\n')||'(No targets planned for today)'}
-
-## Engineering Protocol
-1. Pseudocode before code, always.
-2. Project first, cert after.
-3. One resource per concept.
-4. Never suggest a new playlist mid-project.`;
-  document.getElementById('context-preview').textContent=ctx;
-}
-
-function show(v){
-  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  if(event&&event.currentTarget)event.currentTarget.classList.add('active');
-  if(v==='today')renderToday();
-  else if(v==='week')renderWeek();
-  else if(v==='streak')renderStreak();
-  else if(v==='projects')renderProjects();
-  else if(v==='certs')renderCerts();
-}
-
-function openModal(){
-  document.getElementById('target-modal').classList.add('open');
-  document.getElementById('t-day').value = TODAY;
-  setTimeout(() => document.getElementById('t-input').focus(), 100);
-}
-function closeModal(){document.getElementById('target-modal').classList.remove('open');document.getElementById('t-input').value='';}
-function addTarget(){
-  const text=document.getElementById('t-input').value.trim();
-  if(!text)return;
-  state.targets.push({id:Date.now().toString(),text,day:document.getElementById('t-day').value,track:document.getElementById('t-track').value,done:false});
-  save();closeModal();renderToday();
-}
-function toggleTarget(id){const t=state.targets.find(x=>x.id===id);if(t){t.done=!t.done;save();renderToday();}}
-function delTarget(id){state.targets=state.targets.filter(x=>x.id!==id);save();renderToday();}
-function toggleCert(id){state.certs[id]=!state.certs[id];save();renderCerts();renderToday();}
-function selectProvider(el,p){document.querySelectorAll('.pchip').forEach(c=>c.classList.remove('active'));el.classList.add('active');state.provider=p;save();renderContext();}
-function hydrateProviderChips(){document.querySelectorAll('.pchip').forEach(c=>{c.classList.toggle('active',c.dataset.provider===state.provider);});}
-
-function copyContext(){
-  const btn = document.querySelector('.copy-btn');
-  navigator.clipboard.writeText(document.getElementById('context-preview').textContent);
-  const orig = btn.textContent;
-  btn.textContent = "Copied!";
-  btn.style.background = "var(--green)";
-  btn.style.color = "var(--bg)";
-  setTimeout(() => { btn.textContent = orig; btn.style.background = ""; btn.style.color = ""; }, 1500);
-}
-
-function exportState(){
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download='state.json';a.click();
-}
-
-function copyStateToClipboard(){
-  navigator.clipboard.writeText(JSON.stringify(state,null,2));
-  alert('State copied to clipboard!');
-}
-
-function displayImportStatus(success, message) {
-  const el = document.getElementById('import-status');
-  el.style.display = 'block';
-  el.style.backgroundColor = success ? 'var(--greenb)' : 'var(--redb)';
-  el.style.color = success ? 'var(--green)' : 'var(--red)';
-  el.style.border = `1px solid ${success ? 'var(--green)' : 'var(--red)'}`;
-  el.textContent = message;
-  setTimeout(() => { el.style.display = 'none'; }, 4000);
-}
-
-function importFromFile(e){
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try{
-      const parsed=JSON.parse(ev.target.result);
-      if(!parsed||typeof parsed!=='object'){throw new Error('Not a valid state object');}
-      state=parsed;
-      if(!state.theme) state.theme = 'dark';
-      save();applyTheme();hydrateProviderChips();renderToday();renderStreak();
-      displayImportStatus(true, 'Data imported successfully.');
-    }catch(err){
-      displayImportStatus(false, 'Import failed: ' + err.message);
-    }
-  };
-  reader.readAsText(file);
-}
-
-function importFromText(){
-  try{
-    const parsed=JSON.parse(document.getElementById('import-input').value);
-    if(!parsed||typeof parsed!=='object'){throw new Error('Not a valid state object');}
-    state=parsed;
-    if(!state.theme) state.theme = 'dark';
-    save();applyTheme();hydrateProviderChips();renderToday();renderStreak();
-    document.getElementById('import-input').value = '';
-    displayImportStatus(true, 'Data imported successfully.');
-  }catch(err){
-    displayImportStatus(false, 'Import failed: ' + err.message);
-  }
-}
-function updateSyncStatus(){document.getElementById('sync-status').textContent='local storage · saved '+new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});}
-
-document.getElementById('target-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.key==='Enter'&&document.getElementById('target-modal').classList.contains('open'))addTarget();});
-
-hydrateProviderChips();
-renderToday();
-renderStreak();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
