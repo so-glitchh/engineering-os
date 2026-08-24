@@ -106,6 +106,27 @@ def parse_target_line(line):
         "done": done
     }
 
+def resolve_team_id():
+    """Convert a human-readable team key (like 'ENG') to a UUID if needed."""
+    global LINEAR_TEAM_ID
+    if not LINEAR_TEAM_ID or "-" in LINEAR_TEAM_ID:
+        return # Already a UUID or missing
+        
+    query = """
+    query {
+      teams { nodes { id key name } }
+    }
+    """
+    try:
+        res = linear_query(query)
+        for t in res["teams"]["nodes"]:
+            if t["key"].lower() == LINEAR_TEAM_ID.lower() or t["name"].lower() == LINEAR_TEAM_ID.lower():
+                print(f"Auto-resolved team '{LINEAR_TEAM_ID}' to UUID {t['id']}")
+                LINEAR_TEAM_ID = t["id"]
+                return
+    except Exception as e:
+        print(f"Failed to auto-resolve team ID: {e}")
+
 def get_todays_targets():
     """Read today's section in daily-log.md and return parsed targets."""
     if not DAILY_LOG.exists():
@@ -283,6 +304,7 @@ def main():
     
     # Phase 2: Linear API Synchronization
     if LINEAR_API_KEY and LINEAR_TEAM_ID:
+        resolve_team_id()
         push_to_linear(targets)
         targets = pull_from_linear(targets)
         rewrite_daily_log(targets)
