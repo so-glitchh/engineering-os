@@ -1,5 +1,27 @@
 {
-  "targets": [],
+  "targets": [
+    {
+      "id": "1787588064317",
+      "text": "Refactor sync pipeline",
+      "track": "Automation",
+      "day": "Mon",
+      "done": false
+    },
+    {
+      "id": "1787588057189",
+      "text": "Configure Linear UI mockup",
+      "track": "Design",
+      "day": "Mon",
+      "done": true
+    },
+    {
+      "id": "1787588061955",
+      "text": "Test python script execution",
+      "track": "AI Engineering",
+      "day": "Mon",
+      "done": false
+    }
+  ],
   "dailyChecks": {},
   "streak": {},
   "certs": {},

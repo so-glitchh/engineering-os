@@ -2,8 +2,8 @@
 
 ## 2026-08-24 — Monday
 
-- [ ] Target 1:
-- [ ] Target 2:
-- [ ] Target 3:
+- [ ] Refactor sync pipeline | Track: Automation | Day: Mon
+- [x] Configure Linear UI mockup | Track: Design
+- [ ] Test python script execution
 
-Commit: (fill after 19:30 push)
+Commit: pending
