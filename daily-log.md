@@ -6,4 +6,4 @@
 - [x] Configure Linear UI mockup | Track: Design
 - [x] Test python script execution
 
-Commit: pending
+Commit: 3ad4ed3 (Fixes ENG-1)
