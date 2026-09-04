@@ -29,16 +29,26 @@ const TRACK_COLORS = {ai:'purple',fullstack:'orange',backend:'blue',dsa:'red',os
 
 // --- SIDEBAR TOGGLE ---
 function toggleSidebar(side) {
-  const shell = document.getElementById('shell');
   const cls = side === 'left' ? 'left-collapsed' : 'right-collapsed';
-  shell.classList.toggle(cls);
+  document.body.classList.toggle(cls);
   const btn = document.getElementById('toggle-' + side);
   if (side === 'left') {
-    btn.innerHTML = shell.classList.contains(cls) ? '&#x276F;' : '&#x276E;';
+    btn.innerHTML = document.body.classList.contains(cls) ? '&#x276F;' : '&#x276E;';
   } else {
-    btn.innerHTML = shell.classList.contains(cls) ? '&#x276E;' : '&#x276F;';
+    btn.innerHTML = document.body.classList.contains(cls) ? '&#x276E;' : '&#x276F;';
   }
 }
+
+function setMobileMenu(open) {
+  document.body.classList.toggle('mobile-menu-open', open);
+  const toggle = document.getElementById('mobile-nav-toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  }
+}
+function toggleMobileMenu() { setMobileMenu(!document.body.classList.contains('mobile-menu-open')); }
+function closeMobileMenu() { setMobileMenu(false); }
 
 // --- THEME ---
 function applyTheme() {
@@ -59,6 +69,9 @@ function renderToday(){
   document.getElementById('today-date-full').textContent=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
   const todays=state.targets.filter(t=>t.day===TODAY);
+  const focus=document.getElementById('focus-summary');
+  const nextTarget=todays.find(t=>!t.done);
+  if(focus) focus.textContent=nextTarget ? 'Next: '+nextTarget.text : (todays.length ? 'Everything planned for today is complete.' : 'Set a target to define your next move.');
   const list=document.getElementById('targets-list');
   document.getElementById('no-targets').style.display=todays.length?'none':'block';
   list.innerHTML='';
@@ -79,7 +92,7 @@ function renderToday(){
   document.getElementById('s-week').textContent=weekPct+'%';
   const weekBar = document.getElementById('s-week-bar');
   if(weekBar) weekBar.style.width = weekPct+'%';
-  document.getElementById('s-streak').textContent=calcStreak();
+  document.getElementById('s-streak').textContent=calcStreak().current;
   document.getElementById('s-month').textContent=state.currentMonth;
   const certsDone = Object.values(state.certs).filter(v=>v).length;
   document.getElementById('s-certs').textContent=certsDone+'/8';
@@ -476,6 +489,7 @@ function copyContext(){
 
 // --- MODALS & ROUTING ---
 function show(v){
+  closeMobileMenu();
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
@@ -565,7 +579,7 @@ function showToast(msg, type='success'){
 document.querySelectorAll('.modal-overlay').forEach(el => {
   el.addEventListener('click',function(e){if(e.target===this)closeModals();});
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModals();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModals();closeMobileMenu();}});
 
 async function boot() {
   try {
