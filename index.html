@@ -24,7 +24,9 @@
   </div>
 </div>
 
-<div class="shell">
+<div class="shell" id="shell">
+<button class="sidebar-toggle left" id="toggle-left" onclick="toggleSidebar('left')" title="Toggle sidebar">&#x276E;</button>
+<button class="sidebar-toggle right" id="toggle-right" onclick="toggleSidebar('right')" title="Toggle context">&#x276F;</button>
 
 <aside class="side-left">
   <div class="nav-section">Core</div>
@@ -49,18 +51,18 @@
   <div class="page-sub" id="today-date-full"></div>
   <div class="stat-row">
     <div class="stat"><div class="stat-label">Streak</div><div class="stat-val" id="s-streak">0</div></div>
-    <div class="stat"><div class="stat-label">Week %</div><div class="stat-val" id="s-week">0%</div></div>
+    <div class="stat"><div class="stat-label">Week %</div><div class="stat-val" id="s-week">0%</div><div class="stat-bar"><div class="stat-bar-fill" id="s-week-bar" style="width:0%;background:var(--green)"></div></div></div>
     <div class="stat"><div class="stat-label">Month</div><div class="stat-val" id="s-month">1</div></div>
-    <div class="stat"><div class="stat-label">Certs</div><div class="stat-val" id="s-certs">0/8</div></div>
+    <div class="stat"><div class="stat-label">Certs</div><div class="stat-val" id="s-certs">0/8</div><div class="stat-bar"><div class="stat-bar-fill" id="s-certs-bar" style="width:0%;background:var(--cyan)"></div></div></div>
   </div>
   <div class="two-col">
     <div class="card">
-      <div class="card-title"><span>🎯 Targets</span><button class="btn btn-sm btn-primary" onclick="openModal('target')">+ Add</button></div>
+      <div class="card-title"><span>Targets</span><button class="btn btn-sm btn-primary" onclick="openModal('target')">+ Add</button></div>
       <div id="targets-list"></div>
       <div id="no-targets" style="color:var(--muted);font-size:12px;padding:12px 0;text-align:center;font-style:italic">No targets set. Plan your work.</div>
     </div>
     <div class="card">
-      <div class="card-title">🛡️ Non-negotiables</div>
+      <div class="card-title">Non-negotiables</div>
       <div id="daily-checks"></div>
     </div>
   </div>
@@ -70,6 +72,13 @@
 <div class="view" id="view-week">
   <div class="page-title">This Week</div>
   <div class="page-sub">All targets grouped by day</div>
+  <div class="week-toolbar">
+    <div class="week-stats" id="week-stats"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-sm" onclick="clearDoneTargets()">Clear completed</button>
+      <button class="btn btn-sm btn-danger" onclick="clearAllTargets()">Clear all</button>
+    </div>
+  </div>
   <div class="card" id="week-list"></div>
 </div>
 
@@ -92,8 +101,18 @@
 <div class="view" id="view-streak">
   <div class="page-title">Commit Streak</div>
   <div class="page-sub">Click a day to mark committed</div>
+  <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
+    <div class="stat"><div class="stat-label">Current</div><div class="stat-val" id="streak-current">0</div></div>
+    <div class="stat"><div class="stat-label">Best</div><div class="stat-val" id="streak-best">0</div></div>
+    <div class="stat"><div class="stat-label">This month</div><div class="stat-val" id="streak-month">0</div></div>
+  </div>
   <div class="card">
+    <div class="card-title">Last 28 days</div>
     <div class="streak-grid" id="streak-grid" style="grid-template-columns:repeat(14,1fr)"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Weekly activity</div>
+    <div id="streak-weekly-bars"></div>
   </div>
 </div>
 
@@ -154,12 +173,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0f1218; --bg-elev:#161a22; --bg-elev-2:#1b212c; --border:#262c38;
-    --text:#e7e9ee; --text-dim:#8f97a8; --text-faint:#5b6272;
-    --blue:#6a93ff; --green:#3ecf8e; --amber:#f2b84b; --violet:#b09bfb; --teal:#4bc9c2;
-    --sans:'Space Grotesk', system-ui, -apple-system, sans-serif;
-    --mono:'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+  #view-landscape {
+    --bg-elev: var(--s1);
+    --bg-elev-2: var(--s2);
+    --text-dim: var(--muted);
+    --text-faint: var(--hint);
+    --amber: var(--orange);
+    --violet: var(--purple);
+    --teal: var(--cyan);
   }
   *{box-sizing:border-box;}
   .dash{background:var(--bg); color:var(--text); font-family:var(--sans); padding:22px 14px 64px; max-width:760px; margin:0 auto; line-height:1.45;}
@@ -513,13 +534,13 @@
   <div class="page-sub">Export/Import JSON state — localStorage is your database</div>
   <div class="two-col">
     <div class="card">
-      <div class="card-title">📤 Export</div>
+      <div class="card-title">Export</div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Download your entire system state.</p>
       <div class="export-row"><button class="btn btn-primary" onclick="exportState()">Download state.json</button></div>
       <div class="export-row"><button class="btn" onclick="copyStateToClipboard()">Copy to Clipboard</button></div>
     </div>
     <div class="card">
-      <div class="card-title">📥 Import</div>
+      <div class="card-title">Import</div>
       <textarea id="import-input" placeholder='Paste JSON here or use file picker'></textarea>
       <div class="export-row" style="margin-top:12px">
         <input type="file" id="import-file" accept=".json" style="font-size:12px;padding:6px;background:var(--bg)" onchange="importFromFile(event)">
@@ -542,18 +563,18 @@
 
 <!-- RIGHT PANEL -->
 <aside class="side-right">
-  <div class="ctx-title">🧠 Context Engine</div>
+  <div class="ctx-title">Context Engine</div>
   <div class="provider-chips" id="provider-chips">
     <span class="pchip" data-provider="ollama" onclick="selectProvider(this,'ollama')">Ollama</span>
     <span class="pchip" data-provider="groq" onclick="selectProvider(this,'groq')">Groq</span>
     <span class="pchip" data-provider="openrouter" onclick="selectProvider(this,'openrouter')">OpenRouter</span>
     <span class="pchip" data-provider="antigravity" onclick="selectProvider(this,'antigravity')">Antigravity</span>
   </div>
-  <div class="ctx-title">📄 context.md</div>
+  <div class="ctx-title">context.md</div>
   <div class="ctx-box" id="context-preview"></div>
   <button class="btn copy-btn" onclick="copyContext()">Copy Markdown</button>
   <div style="margin-top:32px">
-    <div class="ctx-title">🔥 14-Day Streak</div>
+    <div class="ctx-title">14-Day Streak</div>
     <div class="streak-grid" id="mini-streak" style="grid-template-columns:repeat(7,1fr)"></div>
   </div>
 </aside>

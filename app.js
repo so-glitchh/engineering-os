@@ -6,7 +6,16 @@ let activeJournalDate = new Date().toISOString().slice(0, 10);
 // --- STATE MANAGEMENT ---
 function def(){return {targets:[],dailyChecks:{},streak:{},certs:{},currentMonth:1,provider:'ollama',theme:'dark',projects:[],resources:[],journal:{}};}
 function load(){try{const r=localStorage.getItem(KEY);if(!r)return def();const s=JSON.parse(r);if(!s.projects)s.projects=[];if(!s.resources)s.resources=[];if(!s.journal)s.journal={};return s;}catch(e){return def();}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));updateSyncStatus();}catch(e){console.error(e);}}
+function save(){
+  try{
+    state.lastSync = Date.now();
+    localStorage.setItem(KEY,JSON.stringify(state));
+    updateSyncStatus();
+    if(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      fetch('/save_state', { method: 'POST', body: JSON.stringify(state) }).catch(e=>{});
+    }
+  }catch(e){console.error(e);}
+}
 let state = load();
 
 const DAILY_CHECKS = [
@@ -17,6 +26,19 @@ const DAILY_CHECKS = [
 ];
 
 const TRACK_COLORS = {ai:'purple',fullstack:'orange',backend:'blue',dsa:'red',oss:'green',devops:'cyan',general:'yellow'};
+
+// --- SIDEBAR TOGGLE ---
+function toggleSidebar(side) {
+  const shell = document.getElementById('shell');
+  const cls = side === 'left' ? 'left-collapsed' : 'right-collapsed';
+  shell.classList.toggle(cls);
+  const btn = document.getElementById('toggle-' + side);
+  if (side === 'left') {
+    btn.innerHTML = shell.classList.contains(cls) ? '&#x276F;' : '&#x276E;';
+  } else {
+    btn.innerHTML = shell.classList.contains(cls) ? '&#x276E;' : '&#x276F;';
+  }
+}
 
 // --- THEME ---
 function applyTheme() {
@@ -53,10 +75,16 @@ function renderToday(){
   });
 
   const wd=state.targets.filter(t=>t.done).length, wt=state.targets.length;
-  document.getElementById('s-week').textContent=(wt?Math.round(wd/wt*100):0)+'%';
+  const weekPct = wt?Math.round(wd/wt*100):0;
+  document.getElementById('s-week').textContent=weekPct+'%';
+  const weekBar = document.getElementById('s-week-bar');
+  if(weekBar) weekBar.style.width = weekPct+'%';
   document.getElementById('s-streak').textContent=calcStreak();
   document.getElementById('s-month').textContent=state.currentMonth;
-  document.getElementById('s-certs').textContent=Object.values(state.certs).filter(v=>v).length+'/8';
+  const certsDone = Object.values(state.certs).filter(v=>v).length;
+  document.getElementById('s-certs').textContent=certsDone+'/8';
+  const certsBar = document.getElementById('s-certs-bar');
+  if(certsBar) certsBar.style.width = Math.round(certsDone/8*100)+'%';
 
   const tk=d.toISOString().slice(0,10);
   if(!state.dailyChecks[tk])state.dailyChecks[tk]={};
@@ -92,10 +120,50 @@ function renderWeek(){
     if(!items.length)sec.innerHTML+=`<div style="color:var(--hint);font-size:12px;font-style:italic">No targets planned</div>`;
     el.appendChild(sec);
   });
+  const total = state.targets.length;
+  const done = state.targets.filter(t=>t.done).length;
+  const ws = document.getElementById('week-stats');
+  if(ws) ws.innerHTML = `Total: <span>${total}</span> &middot; Done: <span>${done}</span> &middot; Pending: <span>${total - done}</span>`;
 }
 
-function calcStreak(){let s=0;const t=new Date();for(let i=0;i<365;i++){const d=new Date(t);d.setDate(t.getDate()-i);const k=d.toISOString().slice(0,10);if(state.streak[k])s++;else if(i>0)break;}return s;}
+function clearDoneTargets(){
+  state.targets = state.targets.filter(t => !t.done);
+  save(); renderWeek(); renderToday();
+  showToast('Completed targets cleared');
+}
+function clearAllTargets(){
+  if(!confirm('Clear ALL targets for this week?')) return;
+  state.targets = [];
+  save(); renderWeek(); renderToday();
+  showToast('All targets cleared');
+}
+
+function calcStreak(){
+  let current=0, best=0, temp=0, t=new Date();
+  for(let i=0;i<365;i++){
+    const d=new Date(t);d.setDate(t.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    if(state.streak[k]){ current++; temp++; if(temp>best)best=temp; }
+    else { if(i>0)temp=0; }
+  }
+  let monthStreak=0;
+  for(let i=0;i<30;i++){
+    const d=new Date(t);d.setDate(t.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    if(state.streak[k])monthStreak++;
+  }
+  return {current,best,monthStreak};
+}
+
 function renderStreak(){
+  const stats = calcStreak();
+  const elCurrent = document.getElementById('streak-current');
+  const elBest = document.getElementById('streak-best');
+  const elMonth = document.getElementById('streak-month');
+  if(elCurrent) elCurrent.textContent = stats.current;
+  if(elBest) elBest.textContent = stats.best;
+  if(elMonth) elMonth.textContent = stats.monthStreak;
+
   ['streak-grid','mini-streak'].forEach(id=>{
     const grid=document.getElementById(id);
     if(!grid)return;
@@ -113,6 +181,27 @@ function renderStreak(){
       grid.appendChild(div);
     }
   });
+
+  const weeklyBars = document.getElementById('streak-weekly-bars');
+  if(weeklyBars) {
+    let html = '';
+    const t = new Date();
+    for(let w=0; w<4; w++) {
+      let weekCommits = 0;
+      for(let d=0; d<7; d++) {
+        const dt = new Date(t);
+        dt.setDate(t.getDate() - (w*7 + d));
+        if(state.streak[dt.toISOString().slice(0,10)]) weekCommits++;
+      }
+      const label = w===0 ? 'This week' : (w===1 ? 'Last week' : `${w} weeks ago`);
+      html += `<div class="streak-bar-row">
+        <div class="streak-bar-label">${label}</div>
+        <div class="streak-bar-track"><div class="streak-bar-fill" style="width:${Math.round((weekCommits/7)*100)}%"></div></div>
+        <div class="streak-bar-count">${weekCommits}/7</div>
+      </div>`;
+    }
+    weeklyBars.innerHTML = html;
+  }
 }
 
 // --- PROJECTS ---
@@ -478,7 +567,27 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModals();});
 
-applyTheme();
-hydrateProviderChips();
-renderToday();
-renderStreak();
+async function boot() {
+  try {
+    const res = await fetch('./state.json?t=' + Date.now());
+    if (res.ok) {
+      const serverState = await res.json();
+      const serverTime = serverState.lastSync || 0;
+      const localTime = state.lastSync || 0;
+      // If the file on disk is newer than our local storage, use it!
+      if (serverTime > localTime || !localStorage.getItem(KEY)) {
+        state = serverState;
+        localStorage.setItem(KEY, JSON.stringify(state));
+      }
+    }
+  } catch (e) {
+    // probably running on file:// or no server
+  }
+  
+  applyTheme();
+  hydrateProviderChips();
+  renderToday();
+  renderStreak();
+}
+
+boot();
