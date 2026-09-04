@@ -30,7 +30,6 @@
   <div class="nav-section">Core</div>
   <div class="nav-item active" onclick="show('today')"><span class="nav-dot" style="background:var(--purple)"></span>Today</div>
   <div class="nav-item" onclick="show('week')"><span class="nav-dot" style="background:var(--green)"></span>Week</div>
-  <div class="nav-item" onclick="show('journal')"><span class="nav-dot" style="background:var(--cyan)"></span>Journal</div>
   <div class="nav-item" onclick="show('streak')"><span class="nav-dot" style="background:var(--orange)"></span>Streak</div>
   <div class="nav-section">Tracks</div>
   <div class="nav-item" onclick="show('projects')"><span class="nav-dot" style="background:var(--blue)"></span>Projects</div>
@@ -38,8 +37,8 @@
   <div class="nav-item" onclick="show('certs')"><span class="nav-dot" style="background:var(--yellow)"></span>Certs</div>
   <div class="nav-item" onclick="show('landscape')"><span class="nav-dot" style="background:var(--red)"></span>Landscape</div>
   <div class="nav-section">System</div>
-  <div class="nav-item" onclick="show('linear')"><span class="nav-dot" style="background:var(--purple)"></span>Linear Setup</div>
   <div class="nav-item" onclick="show('export')"><span class="nav-dot" style="background:var(--muted)"></span>Data Sync</div>
+  <div class="nav-item" onclick="show('journal')"><span class="nav-dot" style="background:var(--cyan)"></span>Journal</div>
 </aside>
 
 <main class="main">
@@ -152,62 +151,361 @@
 
 <!-- LANDSCAPE -->
 <div class="view" id="view-landscape">
-  <div class="page-title">Engineering Landscape</div>
-  <div class="page-sub">Cross-section of backend, AI engineering, and systems — depth over breadth</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px" id="id-chips">
-    <span class="badge b-purple">Python AI / RAG Engineer</span>
-    <span class="badge b-blue">Backend / API Engineer</span>
-    <span class="badge b-green">AI Agent Systems</span>
-    <span class="badge b-orange">TypeScript / Node Fullstack</span>
-    <span class="badge b-yellow">Go Systems Engineer</span>
-    <span class="badge b-cyan">Context Engineer</span>
-  </div>
-  <div class="track-grid" id="landscape-tracks"></div>
-  <div class="card" style="margin-top:20px">
-    <div class="card-title">🧠 Engineer Identity — What Unlocks When</div>
-    <div class="im-grid" id="identity-map"></div>
-  </div>
-  <div class="friction-box" style="margin-top:20px">
-    <div class="friction-title">// cognitive friction bridge protocol</div>
-    <div class="friction-grid">
-      <div class="friction-side">
-        <div class="friction-side-title">The gap</div>
-        <div class="friction-step"><span class="fnum">→</span>Reading code = recognition memory = low friction = no growth</div>
-        <div class="friction-step"><span class="fnum">→</span>Writing logic from scratch = retrieval + decomposition = actual skill</div>
-        <div class="friction-step"><span class="fnum">→</span>AI/tutorials bypass the mental muscle for execution</div>
-      </div>
-      <div class="friction-side">
-        <div class="friction-side-title">The bridge — every time</div>
-        <div class="friction-step"><span class="fnum">1.</span>Read the goal in plain English</div>
-        <div class="friction-step"><span class="fnum">2.</span>Close resources. Write what needs to happen.</div>
-        <div class="friction-step"><span class="fnum">3.</span>Write pseudocode — no syntax, just logic</div>
-        <div class="friction-step"><span class="fnum">4.</span>Code from pseudocode, not tutorial</div>
-        <div class="friction-step"><span class="fnum">5.</span>Compare with existing implementations</div>
-        <div class="friction-step"><span class="fnum">6.</span>Use AI to review — not to generate</div>
-      </div>
-    </div>
-  </div>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1218; --bg-elev:#161a22; --bg-elev-2:#1b212c; --border:#262c38;
+    --text:#e7e9ee; --text-dim:#8f97a8; --text-faint:#5b6272;
+    --blue:#6a93ff; --green:#3ecf8e; --amber:#f2b84b; --violet:#b09bfb; --teal:#4bc9c2;
+    --sans:'Space Grotesk', system-ui, -apple-system, sans-serif;
+    --mono:'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  .dash{background:var(--bg); color:var(--text); font-family:var(--sans); padding:22px 14px 64px; max-width:760px; margin:0 auto; line-height:1.45;}
+  .head h1{font-size:1.4rem; font-weight:600; margin:0 0 4px;}
+  .head .sub{color:var(--text-dim); margin:0; font-size:0.92rem;}
+  .head .sync{color:var(--text-faint); font-family:var(--mono); font-size:0.7rem; margin:8px 0 0;}
+
+  .hero{margin-top:18px; background:linear-gradient(160deg, var(--bg-elev-2), var(--bg-elev)); border:1px solid var(--border); border-radius:16px; padding:16px 16px 14px; box-shadow:0 12px 30px -18px rgba(0,0,0,0.6);}
+  .hero .tag{color:var(--text-faint); font-size:0.7rem; margin:0 0 6px;}
+  .hero .task{font-size:1.08rem; font-weight:600; margin:0 0 4px;}
+  .hero .meta{font-family:var(--mono); font-size:0.76rem; color:var(--blue);}
+  .hero .done-msg{color:var(--green); font-weight:600;}
+
+  .progress-row{display:flex; gap:10px; margin-top:14px;}
+  .progress-card{flex:1; background:var(--bg-elev); border:1px solid var(--border); border-radius:12px; padding:10px 12px;}
+  .progress-card .lbl{font-size:0.72rem; color:var(--text-dim); margin-bottom:5px;}
+  .progress-card .count{font-family:var(--mono); font-size:0.88rem; margin-bottom:7px;}
+  .bar-track{height:5px; background:var(--bg-elev-2); border-radius:99px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:99px; transition:width 0.3s ease;}
+
+  h2.section-title{font-size:0.98rem; font-weight:600; margin:30px 0 3px;}
+  p.section-sub{color:var(--text-faint); font-size:0.8rem; margin:0 0 12px;}
+
+  .scroller{display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; margin:0 -14px; padding-left:14px; padding-right:14px; -webkit-overflow-scrolling:touch;}
+  .scroller::-webkit-scrollbar{height:0;}
+  .chip{flex:0 0 auto; background:var(--bg-elev); border:1px solid var(--border); border-radius:10px; padding:9px 13px; cursor:pointer; min-width:132px;}
+  .chip.selected{border-color:var(--accent, var(--blue));}
+  .chip .cname{font-size:0.8rem; font-weight:500;}
+  .chip .cowner{font-family:var(--mono); font-size:0.62rem; color:var(--text-faint); margin-top:4px;}
+  .layer-detail{margin-top:10px; background:var(--bg-elev); border:1px solid var(--border); border-radius:12px; padding:12px 14px;}
+  .layer-detail .lname{font-weight:600; font-size:0.88rem; margin-bottom:4px;}
+  .layer-detail .ldesc{font-size:0.82rem; color:var(--text-dim); margin-bottom:6px;}
+  .layer-detail .lowner{font-family:var(--mono); font-size:0.72rem;}
+
+  .pcard{border:1px solid var(--border); border-radius:14px; margin-bottom:14px; overflow:hidden; background:var(--bg-elev);}
+  .pcard .pbar{height:4px;}
+  .pcard .pin{padding:14px 16px 15px;}
+  .pcard .ptop{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .pcard .pname{font-size:1rem; font-weight:600;}
+  .pcard .ptag{font-family:var(--mono); font-size:0.66rem; padding:3px 8px; border-radius:99px; white-space:nowrap; margin-top:2px;}
+  .pcard .plabels{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 10px;}
+  .lbl-pill{font-family:var(--mono); font-size:0.63rem; color:var(--text-dim); background:var(--bg-elev-2); border:1px solid var(--border); padding:2px 8px; border-radius:99px;}
+  .pcard .ppurpose{font-size:0.85rem; color:var(--text-dim); margin-bottom:12px;}
+  .lbs{display:grid; grid-template-columns:1fr; gap:7px; margin-bottom:12px;}
+  .lbs .row{display:flex; gap:8px; font-size:0.79rem;}
+  .lbs .k{flex:0 0 46px; color:var(--text-faint); font-family:var(--mono); font-size:0.68rem; padding-top:1px;}
+  .lbs .v{color:var(--text);}
+  .pcard .expand-btn{font-family:var(--mono); font-size:0.7rem; color:var(--text-faint); background:none; border:none; cursor:pointer; padding:2px 0;}
+
+  .sublist{margin-top:10px; border-top:1px solid var(--border); padding-top:8px;}
+  .item{display:flex; align-items:flex-start; gap:11px; padding:9px 2px; cursor:pointer;}
+  .item.locked{cursor:not-allowed; opacity:0.5;}
+  .check{flex:0 0 auto; width:18px; height:18px; margin-top:1px; border-radius:5px; border:1.5px solid var(--text-faint); display:flex; align-items:center; justify-content:center;}
+  .check.on{background:var(--green); border-color:var(--green);}
+  .check svg{width:11px; height:11px; display:none;}
+  .check.on svg{display:block;}
+  .item-title{font-size:0.86rem;}
+  .item.done .item-title{color:var(--text-faint); text-decoration:line-through;}
+  .item-meta{font-family:var(--mono); font-size:0.68rem; color:var(--text-faint); margin-top:2px;}
+  .lock-note{font-size:0.74rem; color:var(--text-faint); margin-top:6px; font-style:italic;}
+
+  .mini-version{display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); font-size:0.78rem;}
+  .mini-version:last-child{border-bottom:none;}
+  .mini-version .vv{font-family:var(--mono); color:var(--text-dim);}
+  .mini-version .vt{color:var(--text-dim); font-size:0.68rem;}
+  .vbadge{font-family:var(--mono); font-size:0.6rem; padding:2px 6px; border-radius:99px;}
+
+  .tl-phase{border-left:2px solid var(--border); padding:2px 0 2px 18px; position:relative;}
+  .tl-phase::before{content:attr(data-n); position:absolute; left:-11px; top:2px; width:20px; height:20px; border-radius:50%; background:var(--bg-elev); border:1.5px solid var(--border); font-family:var(--mono); font-size:0.6rem; color:var(--text-dim); display:flex; align-items:center; justify-content:center;}
+  .tl-head{padding:8px 0; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px;}
+  .tl-weeks{font-family:var(--mono); font-size:0.7rem; color:var(--text-faint);}
+  .tl-title{font-size:0.88rem; font-weight:500;}
+  .tl-arrow{color:var(--text-faint); font-size:0.68rem; transition:transform 0.2s ease;}
+  .tl-arrow.open{transform:rotate(90deg);}
+  .tl-detail{max-height:0; overflow:hidden; transition:max-height 0.25s ease;}
+  .tl-detail.open{max-height:200px;}
+  .tl-detail p{font-size:0.8rem; color:var(--text-dim); padding:2px 0 12px; margin:0;}
+
+  .foot{margin-top:30px; display:flex; justify-content:space-between; align-items:center; gap:12px;}
+  .foot span{font-family:var(--mono); font-size:0.66rem; color:var(--text-faint);}
+  .reset{background:none; border:1px solid var(--border); color:var(--text-faint); font-family:var(--sans); font-size:0.74rem; padding:7px 12px; border-radius:8px; cursor:pointer;}
+</style>
+
+<div class="dash" id="dash">
+  <header class="head">
+    <h1>Landscape and projects</h1>
+    <p class="sub">Every layer of the roadmap, and which project covers it.</p>
+    <p class="sync" id="sync">loading saved progress…</p>
+  </header>
+
+  <section class="hero" id="hero"></section>
+  <div class="progress-row" id="progressRow"></div>
+
+  <h2 class="section-title">The full landscape</h2>
+  <p class="section-sub">Tap a layer to see what it is and who owns it right now.</p>
+  <div class="scroller" id="layerScroller"></div>
+  <div class="layer-detail" id="layerDetail"></div>
+
+  <h2 class="section-title">The four projects</h2>
+  <p class="section-sub">Each with its own learn, build, and ship. Nothing merged away.</p>
+  <div id="projects"></div>
+
+  <h2 class="section-title">16 week timeline</h2>
+  <p class="section-sub">Tap a phase for the plan.</p>
+  <div id="timelineList"></div>
+
+  <footer class="foot">
+    <span id="updated"></span>
+    <button class="reset" id="resetBtn">Reset all progress</button>
+  </footer>
 </div>
 
-<!-- LINEAR SETUP -->
-<div class="view" id="view-linear">
-  <div class="page-title">Linear Integration</div>
-  <div class="page-sub">How this dashboard connects to your Linear workspace</div>
-  <div class="card">
-    <div class="card-title">Setup Steps</div>
-    <div style="font-size:13px;color:var(--muted);line-height:1.8">
-      1. Create free Linear workspace at linear.app<br>
-      2. One team "Engineering", 6 projects — one per roadmap month<br>
-      3. Settings → Integrations → GitHub → Connect<br>
-      4. Get API key: Settings → API → Create key<br>
-      5. Run <code style="color:var(--purple);background:var(--purpleb);padding:2px 6px;border-radius:4px;font-family:var(--mono);font-size:11px">python sync.py</code> locally
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Commit Convention</div>
-    <div style="font-family:var(--mono);font-size:12px;color:var(--text);background:var(--bg);padding:12px;border-radius:8px;border:1px solid var(--border)">git commit -m "Fixes ENG-12: ingest.py loads PDFs and prints chunk count"</div>
-  </div>
+<script>
+(function(){
+  const COLORS = {blue:'#6a93ff', green:'#3ecf8e', amber:'#f2b84b', violet:'#b09bfb', teal:'#4bc9c2', faint:'#5b6272'};
+
+  const LAYERS = [
+    {id:'l0', name:'Backend foundation', color:'blue', owner:'FlyRank track', desc:'APIs, databases, auth, testing, containerizing, deployment. Everything an AI feature still needs underneath it.'},
+    {id:'l1', name:'Model as a component', color:'green', owner:'llm-engine v0.3, done, plus FlyRank week 6', desc:'Calling a model directly, structured outputs, streaming, tokens and cost. The substrate is already built.'},
+    {id:'l2', name:'Context engineering', color:'violet', owner:'Mini coding agent', desc:'Deciding what the model actually gets to see: instructions, history, tool results, retrieved files.'},
+    {id:'l3', name:'Retrieval', color:'amber', owner:'Already practiced once', desc:'Full text, metadata, semantic, hybrid search. You already shipped a FAISS plus reranker version elsewhere. Not scheduled again unless a real failure justifies it.'},
+    {id:'l4', name:'Tools and agents', color:'violet', owner:'Mini coding agent', desc:'The tool calling boundary and the agent loop: reason, call a tool, observe, continue or stop.'},
+    {id:'l5', name:'Evals and reliability', color:'violet', owner:'Mini coding agent, from day one', desc:'A small dataset of real tasks with known correct answers, tracked from the start, not bolted on at the end.'},
+    {id:'l6', name:'Learn when needed', color:'faint', owner:'Deliberately deferred', desc:'MCP, memory frameworks like Redis, multi agent coordination, fine tuning, inference internals. Added only once a real problem names the need.'}
+  ];
+
+  const FLYRANK = [
+    {id:'crud', title:'Build your first CRUD API', week:2, hours:3},
+    {id:'a2db', title:'A2, connecting to the database', week:3, hours:4},
+    {id:'a3containerize', title:'A3, containerize your stack', week:3, hours:6},
+    {id:'auth', title:'Auth, login and protect', week:4, hours:6},
+    {id:'scraper', title:'The polite scraper', week:5, hours:6},
+    {id:'connectai', title:'Connect to an AI API', week:6, hours:6},
+    {id:'aidecision', title:'Build an AI decision flow (React Flow + Inngest)', week:7, hours:2},
+    {id:'pdfreport', title:'PDF report generator', week:7, hours:6},
+    {id:'bgjob', title:'Your first background job', week:7, hours:7}
+  ];
+
+  const CODING_AGENT_STEPS = [
+    {id:'v0', title:'v0, repository understanding', meta:'scanner, selector, context builder, one model call'},
+    {id:'v1', title:'v1, tool using agent loop', meta:'read, search, list, ReAct style loop, first eval set'},
+    {id:'v2', title:'v2, real edits', meta:'propose changes, diffs, git safety, validation'}
+  ];
+
+  const LLM_VERSIONS = [
+    {id:'v03', v:'v0.3.0', t:'Tool Runtime', badge:'done', color:'green'},
+    {id:'v04', v:'v0.4.0', t:'Agent Runtime = Mini coding agent', badge:'see card', color:'violet'},
+    {id:'v05', v:'v0.5.0', t:'Memory, Redis', badge:'conditional', color:'amber'},
+    {id:'v06', v:'v0.6.0', t:'Knowledge, RAG', badge:'conditional', color:'amber'},
+    {id:'v07', v:'v0.7.0', t:'Framework integrations', badge:'conditional', color:'amber'},
+    {id:'v08', v:'v0.8.0', t:'Evaluation', badge:'merged into v0.4', color:'violet'},
+    {id:'v09', v:'v0.9.0', t:'Portfolio apps', badge:'later', color:'faint'},
+    {id:'v10', v:'v1.0.0', t:'Production', badge:'later', color:'faint'}
+  ];
+
+  const TIMELINE = [
+    {id:'t1', weeks:'Weeks 1 to 5', title:'FlyRank catch up', detail:'Roughly 9 hours a week on the FlyRank backlog, in order. Weekends only on the mini coding agent v0 and v1.'},
+    {id:'t2', weeks:'Weeks 6 to 9', title:'Real time, plus autocommit', detail:'FlyRank assignments as they arrive. Finish coding agent v2. Once v1 is solid, ship the autocommit CLI, about a week.'},
+    {id:'t3', weeks:'Weeks 10 to 13', title:'Evaluation and production', detail:'FlyRank in real time. Proper evaluation pass on the coding agent. Redis or RAG only if a real failure earns them.'},
+    {id:'t4', weeks:'Weeks 14 to 16', title:'Buffer, or level up', detail:'Branches on the LFX outcome, or llm-engine v0.9 and v1.0 polish.'}
+  ];
+
+  let state = {flyrank:{}, codingAgent:{}, autocommit:{shipped:false}, llm:{}};
+  FLYRANK.forEach(t => state.flyrank[t.id] = false);
+  CODING_AGENT_STEPS.forEach(s => state.codingAgent[s.id] = false);
+  LLM_VERSIONS.forEach(v => state.llm[v.id] = v.badge === 'done');
+  let selectedLayer = LAYERS[0].id;
+  let openTimeline = {};
+  let expanded = {flyrank:true, codingAgent:true, autocommit:true, llmengine:true};
+  let lastSaved = null, storageOk = true;
+
+  const $ = id => document.getElementById(id);
+  const checkSvg = '<svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="#0f1218" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function codingAgentDone(){ return CODING_AGENT_STEPS.every(s => state.codingAgent[s.id]); }
+  function codingAgentV1Done(){ return state.codingAgent.v1 || state.codingAgent.v2; }
+
+  function renderHero(){
+    const nextFR = FLYRANK.find(t => !state.flyrank[t.id]);
+    const nextCA = CODING_AGENT_STEPS.find(s => !state.codingAgent[s.id]);
+    let html = '';
+    if(nextFR){
+      html += '<p class="tag">Right now, top priority</p><p class="task">' + nextFR.title + '</p><p class="meta">FlyRank · week ' + nextFR.week + ' · ' + nextFR.hours + 'h</p>';
+    } else if(nextCA){
+      html += '<p class="tag">Right now, top priority</p><p class="task">' + nextCA.title + '</p><p class="meta">Mini coding agent · ' + nextCA.meta + '</p>';
+    } else if(!state.autocommit.shipped){
+      html += '<p class="tag">Right now, top priority</p><p class="task">Ship the autocommit CLI</p><p class="meta">The substrate is ready, this is the one week shipping project</p>';
+    } else {
+      html += '<p class="tag">Right now</p><p class="task done-msg">All three active projects caught up.</p>';
+    }
+    $('hero').innerHTML = html;
+  }
+
+  function renderProgress(){
+    const frDone = FLYRANK.filter(t => state.flyrank[t.id]).length;
+    const caDone = CODING_AGENT_STEPS.filter(s => state.codingAgent[s.id]).length;
+    const frPct = Math.round(frDone / FLYRANK.length * 100);
+    const caPct = Math.round(caDone / CODING_AGENT_STEPS.length * 100);
+    $('progressRow').innerHTML =
+      '<div class="progress-card"><div class="lbl">FlyRank</div><div class="count">' + frDone + ' / ' + FLYRANK.length + '</div><div class="bar-track"><div class="bar-fill" style="width:' + frPct + '%;background:' + COLORS.blue + '"></div></div></div>' +
+      '<div class="progress-card"><div class="lbl">Mini coding agent</div><div class="count">' + caDone + ' / ' + CODING_AGENT_STEPS.length + '</div><div class="bar-track"><div class="bar-fill" style="width:' + caPct + '%;background:' + COLORS.violet + '"></div></div></div>';
+  }
+
+  function renderLayers(){
+    $('layerScroller').innerHTML = LAYERS.map(l =>
+      '<div class="chip ' + (l.id === selectedLayer ? 'selected' : '') + '" style="--accent:' + COLORS[l.color] + '" data-layer="' + l.id + '">' +
+        '<div class="cname">' + l.name + '</div><div class="cowner">' + l.owner + '</div>' +
+      '</div>'
+    ).join('');
+    const l = LAYERS.find(x => x.id === selectedLayer);
+    $('layerDetail').innerHTML = '<div class="lname">' + l.name + '</div><div class="ldesc">' + l.desc + '</div><div class="lowner" style="color:' + COLORS[l.color] + '">' + l.owner + '</div>';
+  }
+
+  function itemRow(track, id, title, meta, locked, lockNote){
+    const done = state[track][id];
+    return '<div class="item ' + (done?'done':'') + ' ' + (locked?'locked':'') + '" data-track="' + track + '" data-id="' + id + '">' +
+      '<div class="check ' + (done?'on':'') + '">' + checkSvg + '</div>' +
+      '<div><div class="item-title">' + title + '</div><div class="item-meta">' + meta + '</div>' + (locked && lockNote ? '<div class="lock-note">' + lockNote + '</div>' : '') + '</div>' +
+    '</div>';
+  }
+
+  function renderProjects(){
+    let html = '';
+
+    // FlyRank card
+    html += '<div class="pcard"><div class="pbar" style="background:' + COLORS.blue + '"></div><div class="pin">';
+    html += '<div class="ptop"><div class="pname">FlyRank track</div><div class="ptag" style="color:' + COLORS.blue + ';background:rgba(106,147,255,0.15)">assigned, accountable</div></div>';
+    html += '<div class="plabels"><span class="lbl-pill">Backend foundation</span><span class="lbl-pill">Model as a component</span></div>';
+    html += '<div class="ppurpose">Hands on layer 1 of the roadmap, and the real internship obligation, at the same time.</div>';
+    html += '<div class="lbs"><div class="row"><div class="k">learn</div><div class="v">Whatever each assignment\'s own resources specify.</div></div><div class="row"><div class="k">build</div><div class="v">8 remaining assignments, FlyRank\'s own order.</div></div><div class="row"><div class="k">ship</div><div class="v">Each assignment submitted and accepted.</div></div></div>';
+    html += '<div class="sublist">' + FLYRANK.map(t => itemRow('flyrank', t.id, t.title, 'week ' + t.week + ' · ' + t.hours + 'h')).join('') + '</div>';
+    html += '</div></div>';
+
+    // Mini coding agent card
+    html += '<div class="pcard"><div class="pbar" style="background:' + COLORS.violet + '"></div><div class="pin">';
+    html += '<div class="ptop"><div class="pname">Mini coding agent</div><div class="ptag" style="color:' + COLORS.violet + ';background:rgba(176,155,251,0.15)">flagship</div></div>';
+    html += '<div class="plabels"><span class="lbl-pill">Context engineering</span><span class="lbl-pill">Tools and agents</span><span class="lbl-pill">Evals</span></div>';
+    html += '<div class="ppurpose">Built as llm-engine v0.4.0, reusing v0.3.0 Tool Runtime as its substrate. Closes the one real gap: an agent with side effects on a live filesystem.</div>';
+    html += '<div class="lbs"><div class="row"><div class="k">learn</div><div class="v">Context windows, tokens, tool schemas, the ReAct pattern.</div></div><div class="row"><div class="k">build</div><div class="v">v0 repo understanding, v1 tool use, v2 real edits.</div></div><div class="row"><div class="k">ship</div><div class="v">Runnable CLI in a public repo, eval set passing.</div></div></div>';
+    html += '<div class="sublist">' + CODING_AGENT_STEPS.map(s => itemRow('codingAgent', s.id, s.title, s.meta)).join('') + '</div>';
+    html += '</div></div>';
+
+    // Autocommit card
+    const unlocked = codingAgentV1Done();
+    html += '<div class="pcard"><div class="pbar" style="background:' + COLORS.amber + '"></div><div class="pin">';
+    html += '<div class="ptop"><div class="pname">Autocommit CLI</div><div class="ptag" style="color:' + COLORS.amber + ';background:rgba(242,184,75,0.15)">shipping, about a week</div></div>';
+    html += '<div class="plabels"><span class="lbl-pill">Backend foundation</span><span class="lbl-pill">Model as a component</span></div>';
+    html += '<div class="ppurpose">Reads git diff --staged, sends it to a configurable model, generates a conventional commit message. Ships to PyPI once the coding agent\'s provider and tool plumbing exists to extract.</div>';
+    html += '<div class="lbs"><div class="row"><div class="k">learn</div><div class="v">Packaging, PyPI publishing, provider abstraction as a product.</div></div><div class="row"><div class="k">build</div><div class="v">Extract the reusable provider and tool call module, wrap it in a CLI.</div></div><div class="row"><div class="k">ship</div><div class="v">Real, installable PyPI package.</div></div></div>';
+    html += '<div class="sublist">' + itemRow('autocommit', 'shipped', 'Shipped to PyPI', unlocked ? 'ready to build' : 'locked', !unlocked, 'Unlocks once the coding agent\'s v1 tool loop works.') + '</div>';
+    html += '</div></div>';
+
+    // llm-engine card
+    html += '<div class="pcard"><div class="pbar" style="background:' + COLORS.teal + '"></div><div class="pin">';
+    html += '<div class="ptop"><div class="pname">llm-engine</div><div class="ptag" style="color:' + COLORS.teal + ';background:rgba(75,201,194,0.15)">the substrate</div></div>';
+    html += '<div class="plabels"><span class="lbl-pill">Underneath the other three</span></div>';
+    html += '<div class="ppurpose">The versioned system the other projects actually live inside. v0.4.0 is the mini coding agent card above, not a separate build.</div>';
+    html += '<div class="sublist" style="margin-top:8px;">' + LLM_VERSIONS.map(v => {
+        const isV04 = v.id === 'v04';
+        const doneNow = isV04 ? codingAgentDone() : state.llm[v.id];
+        const badge = isV04 ? (doneNow ? 'done' : 'in progress') : v.badge;
+        return '<div class="mini-version"><span class="vv">' + v.v + '</span><span class="vt" style="flex:1;padding:0 8px;">' + v.t + '</span><span class="vbadge" style="color:' + COLORS[v.color] + ';background:' + COLORS[v.color] + '22">' + badge + '</span></div>';
+      }).join('') + '</div>';
+    html += '</div></div>';
+
+    $('projects').innerHTML = html;
+  }
+
+  function renderTimeline(){
+    $('timelineList').innerHTML = TIMELINE.map((p, i) => {
+      const open = !!openTimeline[p.id];
+      return '<div class="tl-phase" data-n="' + (i+1) + '">' +
+        '<div class="tl-head" data-tl="' + p.id + '"><div><div class="tl-title">' + p.title + '</div><div class="tl-weeks">' + p.weeks + '</div></div><div class="tl-arrow ' + (open?'open':'') + '">▸</div></div>' +
+        '<div class="tl-detail ' + (open?'open':'') + '"><p>' + p.detail + '</p></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderFooter(){
+    $('updated').textContent = lastSaved ? ('saved ' + lastSaved) : (storageOk ? '' : 'not saving, storage unavailable');
+  }
+
+  function render(){
+    renderHero(); renderProgress(); renderLayers(); renderProjects(); renderTimeline(); renderFooter();
+  }
+
+  async function loadState(){
+    try{
+      const res = await window.storage.get('dashboard-state-v2', false);
+      if(res && res.value){
+        const saved = JSON.parse(res.value);
+        if(saved.flyrank) Object.assign(state.flyrank, saved.flyrank);
+        if(saved.codingAgent) Object.assign(state.codingAgent, saved.codingAgent);
+        if(saved.autocommit) Object.assign(state.autocommit, saved.autocommit);
+        if(saved.llm) Object.assign(state.llm, saved.llm);
+        lastSaved = saved.savedAt || null;
+      }
+      $('sync').textContent = '';
+    }catch(e){ $('sync').textContent = ''; }
+    render();
+  }
+
+  async function saveState(){
+    lastSaved = new Date().toLocaleString();
+    const payload = {flyrank:state.flyrank, codingAgent:state.codingAgent, autocommit:state.autocommit, llm:state.llm, savedAt:lastSaved};
+    try{ await window.storage.set('dashboard-state-v2', JSON.stringify(payload), false); storageOk = true; }
+    catch(e){ storageOk = false; }
+    renderFooter();
+  }
+
+  document.addEventListener('click', function(e){
+    const chip = e.target.closest('.chip');
+    if(chip){ selectedLayer = chip.getAttribute('data-layer'); renderLayers(); return; }
+
+    const item = e.target.closest('.item');
+    if(item && !item.classList.contains('locked')){
+      const track = item.getAttribute('data-track');
+      const id = item.getAttribute('data-id');
+      state[track][id] = !state[track][id];
+      render();
+      saveState();
+      return;
+    }
+
+    const tlHead = e.target.closest('.tl-head');
+    if(tlHead){ const id = tlHead.getAttribute('data-tl'); openTimeline[id] = !openTimeline[id]; renderTimeline(); return; }
+
+    if(e.target.id === 'resetBtn'){
+      if(confirm('Reset all checked progress across every project?')){
+        FLYRANK.forEach(t => state.flyrank[t.id] = false);
+        CODING_AGENT_STEPS.forEach(s => state.codingAgent[s.id] = false);
+        state.autocommit.shipped = false;
+        LLM_VERSIONS.forEach(v => state.llm[v.id] = v.badge === 'done');
+        render();
+        saveState();
+      }
+    }
+  });
+
+  render();
+  loadState();
+})();
+</script>
+
 </div>
+
 
 <!-- EXPORT -->
 <div class="view" id="view-export">
